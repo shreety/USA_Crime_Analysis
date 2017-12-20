@@ -1,0 +1,29 @@
+--Task1
+load_data = LOAD '/home/acadgild/Assignments/Project-2/Crimes_-_2001_to_present.csv' Using org.apache.pig.piggybank.storage.CSVExcelStorage(',','NO_MULTILINE','UNIX','SKIP_INPUT_HEADER');
+groupByFBIcode = GROUP  crimeDataset By $14;
+
+countFBIcases = FOREACH groupByFBIcode GENERATE FLATTEN(group) AS $14,COUNT($1);
+
+
+
+--Task2
+selectWard = FILTER load_data BY $12 =='32';
+
+groupWard = GROUP selectWard All;
+
+caseUnderWard = FOREACH groupWard GENERATE COUNT(selectWard);
+
+
+--Task3
+SelectTheft = FILTER load_data BY $5 =='THEFT' AND $8==true;
+groupTheft = GROUP SelectTheft BY $11;
+CaseGroupTheft = FOREACH groupTheft GENERATE FLATTEN(group) AS District , COUNT($1);
+
+--Task4
+load_data = LOAD '/home/acadgild/Assignments/Project-2/Crimes_-_2001_to_present.csv' Using org.apache.pig.piggybank.storage.CSVExcelStorage(',','NO_MULTILINE','UNIX','SKIP_INPUT_HEADER');
+selectArrest = FILTER load_data BY $8=='true';
+getDate = FOREACH selectArrest GENERATE $1 .. $21 , CONCAT(SUBSTRING($2,6,10),SUBSTRING($2,0,2)) as YearMon:int;
+FilterDate = FILTER getDate BY YearMon>201410 AND YearMon<201510;
+countDate = FOREACH (GROUP FilterDate ALL) GENERATE COUNT(FilterDate);
+dump countDate;
+
